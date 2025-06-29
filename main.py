@@ -7,7 +7,7 @@ import os
 with open("config.json") as config:
     config = json.load(config)
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 client = commands.Bot(command_prefix = config["prefix"], intents = intents)
 
 @client.event
