@@ -60,37 +60,67 @@ class Add(commands.Cog):
             return
         try:
             # Get all roles in cords
-            staffModerator = staffGuild.get_role(staffMod)
-            staffAdministrator = staffGuild.get_role(staffAdmin)
-            staffRoleStaffCord = staffGuild.get_role(staffRole)
-            mainModerator = mainGuild.get_role(mainMod)
-            mainAdministrator = mainGuild.get_role(mainAdmin)
-            mainStaffRole = mainGuild.get_role(mainStaff)
-            clanStaffRole = clanGuild.get_role(clanStaff)
-            directorStaffRole = directorGuild.get_role(directorStaff)
-            toolModerator = toolGuild.get_role(toolGuildMod)
-            toolAdministrator = toolGuild.get_role(toolGuildAdmin)
-            toolGuildStaffRole = toolGuild.get_role(toolGuildStaff)
+            staffModerator = staffGuild.get_role(int(staffMod))
+            staffAdministrator = staffGuild.get_role(int(staffAdmin))
+            staffRoleStaffCord = staffGuild.get_role(int(staffRole))
+            mainModerator = mainGuild.get_role(int(mainMod))
+            mainAdministrator = mainGuild.get_role(int(mainAdmin))
+            mainStaffRole = mainGuild.get_role(int(mainStaff))
+            clanStaffRole = clanGuild.get_role(int(clanStaff))
+            directorStaffRole = directorGuild.get_role(int(directorStaff))
+            toolModerator = toolGuild.get_role(int(toolGuildMod))
+            toolAdministrator = toolGuild.get_role(int(toolGuildAdmin))
+            toolGuildStaffRole = toolGuild.get_role(int(toolGuildStaff))
         except Exception as e:
             await errorChannel.send(f'```\n Roles Error\n\n{e}```')
+            return
+        try:
+            roles = [
+                staffModerator,
+                staffAdministrator,
+                staffRoleStaffCord,
+                mainModerator,
+                mainAdministrator,
+                mainStaffRole,
+                clanStaffRole,
+                directorStaffRole,
+                toolModerator,
+                toolAdministrator,
+                toolGuildStaffRole
+            ]
+            for staffRoles in roles:
+                if staffRoles is None:
+                    await errorChannel.send(staffRoles)
+                    return
+        except Exception as e:
+            await errorChannel.send(f'``` \n Role Check Error \n\n{e}```')
+            return
         for guild in guildArray:
             try:
                 member = await guild.fetch_member(user.id)
             except discord.NotFound as e:
-                await errorChannel.send(f'```\n Guild Error \n\n{e}')
+                await errorChannel.send(f'```\n Guild Error \n\n{e}```')
                 return
         # ^ Error check for guilds - then exit if they're not in a guild.
         try: # embed this
-            if role == "Moderator":
-                await member.add_roles(staffModerator)
-                await member.add_roles(staffRoleStaffCord)
-                await member.add_roles(mainModerator)
-                await member.add_roles(mainStaffRole)
-                await member.add_roles(clanStaffRole)
-                await member.add_roles(toolModerator)
-                await member.add_roles(toolGuildStaffRole)
+            rolesToAdd = []
+            if role.value == "Moderator":
+                if guild == staffGuild:
+                    rolesToAdd.extend([staffModerator, staffRoleStaffCord])
+                if guild == mainGuild:
+                    rolesToAdd.extend([mainModerator, mainStaffRole])
+                if guild == clanGuild:
+                    rolesToAdd.extend([clanStaffRole])
+                if guild == toolGuild:
+                    rolesToAdd.extend([toolModerator, toolGuildStaffRole])
+                if guild == directorGuild:
+                    rolesToAdd.extend([directorStaffRole])
+                await member.add_roles(*rolesToAdd)
+            if role.value == "Administrator":
+                print("placeholder right now.")
         except Exception as e:
             await errorChannel.send(f'```\n Give Roles Error\n\n{e}```')
+            return
         logEmbed = discord.Embed(title = "Senior Staff Logs", description = "new command usage", color = 0xFF0FFF)
         logEmbed.add_field(name = "command:", value = f'`/{interaction.command.name}`', inline = False)
         logEmbed.add_field(name = "new staff:", value = user.mention, inline = False)
