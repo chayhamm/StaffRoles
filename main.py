@@ -14,7 +14,7 @@ client = commands.Bot(command_prefix = config["prefix"], intents = intents)
 async def on_ready():
     print(f'Logged in as {client.user.name}')
     try:
-        synced = await client.tree.sync(guild = client.get_guild(config["seniorGuild"]["id"]))
+        synced = await client.tree.sync(guild = discord.Object(id=int(config["seniorGuild"]["id"])))
         print(f'Synced {len(synced)} command(s)')
     except Exception as e:
         print(e)
