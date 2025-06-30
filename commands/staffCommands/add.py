@@ -42,6 +42,7 @@ class Add(commands.Cog):
         app_commands.Choice(name = "Administrator", value = "Administrator")
     ])
     async def add(self, interaction: discord.Interaction, user: discord.User, role: app_commands.Choice[str]):
+        await interaction.response.defer(ephemeral = True)
         guild = self.client.get_guild(int(config["seniorGuild"]["id"]))
         logsChannel = await guild.fetch_channel(config["seniorGuild"]["logs"])
         errorChannel = await guild.fetch_channel(config["seniorGuild"]["error"])
@@ -52,46 +53,51 @@ class Add(commands.Cog):
             clanGuild = await self.client.fetch_guild(int(clanGuildID))
             directorGuild = await self.client.fetch_guild(int(directorGuildID))
             toolGuild = await self.client.fetch_guild(int(toolGuildID))
+            guildArray = [staffGuild, mainGuild, clanGuild, directorGuild, toolGuild]
         except Exception as e:
-            await interaction.response.send_message("Error occured - not continuing with command.", ephemeral = True)
+            await interaction.followup.send("Error occured - not continuing with command.", ephemeral = True)
             await errorChannel.send(f'```\n Guilds Error\n\n{e}```')
             return
         try:
             # Get all roles in cords
-            staffModerator = await staffGuild.get_role(staffMod)
-            staffAdministrator = await staffGuild.get_role(staffAdmin)
-            staffRoleStaffCord = await staffGuild.get_role(staffRole)
-            mainModerator = await mainGuild.get_role(mainMod)
-            mainAdministrator = await mainGuild.get_role(mainAdmin)
-            mainStaffRole = await staffGuild.get_role(mainStaff)
-            clanStaffRole = await clanGuild.get_role(clanStaff)
-            directorStaffRole = await directorGuild.get_role(directorStaff)
-            toolModerator = await toolGuild.get_role(toolGuildMod)
-            toolAdministrator = await toolGuild.get_role(toolGuildAdmin)
-            toolGuildStaffRole = await toolGuild.get_role(toolGuildStaff)
+            staffModerator = staffGuild.get_role(staffMod)
+            staffAdministrator = staffGuild.get_role(staffAdmin)
+            staffRoleStaffCord = staffGuild.get_role(staffRole)
+            mainModerator = mainGuild.get_role(mainMod)
+            mainAdministrator = mainGuild.get_role(mainAdmin)
+            mainStaffRole = mainGuild.get_role(mainStaff)
+            clanStaffRole = clanGuild.get_role(clanStaff)
+            directorStaffRole = directorGuild.get_role(directorStaff)
+            toolModerator = toolGuild.get_role(toolGuildMod)
+            toolAdministrator = toolGuild.get_role(toolGuildAdmin)
+            toolGuildStaffRole = toolGuild.get_role(toolGuildStaff)
         except Exception as e:
             await errorChannel.send(f'```\n Roles Error\n\n{e}```')
-        if user not in staffGuild:
-            await interaction.response.send_message("User not in Staff Guild!", ephemeral = True)
-            return
-        if user not in mainGuild:
-            await interaction.response.send_message("User not in Main Guild!", ephemeral = True)
-            return
-        if user not in clanGuild:
-            await interaction.response.send_message("User not in Clan Guild!", ephemeral = True)
-            return
-        if user not in directorGuild:
-            await interaction.response.send_message("User not in Director Guild!", ephemeral = True)
-            return
-        if user not in toolGuild:
-            await interaction.response.send_message("User not in Tools Guild!", ephemeral = True)
-            return
+        for guild in guildArray:
+            try:
+                member = await guild.fetch_member(user.id)
+            except discord.NotFound as e:
+                await errorChannel.send(f'```\n Guild Error \n\n{e}')
+                return
         # ^ Error check for guilds - then exit if they're not in a guild.
+        try: # embed this
+            if role == "Moderator":
+                await member.add_roles(staffModerator)
+                await member.add_roles(staffRoleStaffCord)
+                await member.add_roles(mainModerator)
+                await member.add_roles(mainStaffRole)
+                await member.add_roles(clanStaffRole)
+                await member.add_roles(toolModerator)
+                await member.add_roles(toolGuildStaffRole)
+        except Exception as e:
+            await errorChannel.send(f'```\n Give Roles Error\n\n{e}```')
         logEmbed = discord.Embed(title = "Senior Staff Logs", description = "new command usage", color = 0xFF0FFF)
         logEmbed.add_field(name = "command:", value = f'`/{interaction.command.name}`', inline = False)
         logEmbed.add_field(name = "new staff:", value = user.mention, inline = False)
         logEmbed.add_field(name = "user:", value = interaction.user.mention, inline = False)
-        await interaction.response.send_message(f'{user.mention} added to the Staff Team!', ephemeral = True)
+        await interaction.followup.send(f'{user.mention} added to the Staff Team!', ephemeral = True)
+        dmUser = await interaction.guild.fetch_member(config["dmUsers"][0])
+        await dmUser.send(embed = logEmbed)
         try:
             await logsChannel.send(embed = logEmbed)
         except Exception as e:
