@@ -16,4 +16,4 @@ class Remove(commands.Cog):
         await interaction.followup.send("Testing", ephemeral = True)
 
 async def setup(client: commands.Bot):
-    await client.add_cog(Remove(client))
+    await client.add_cog(Remove(client), guild=discord.Object(id=int(config["seniorGuild"]["id"])))

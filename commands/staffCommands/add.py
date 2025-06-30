@@ -149,4 +149,4 @@ class Add(commands.Cog):
             print(e)
 
 async def setup(client: commands.Bot):
-    await client.add_cog(Add(client))
+    await client.add_cog(Add(client), guild=discord.Object(id=int(config["seniorGuild"]["id"])))
