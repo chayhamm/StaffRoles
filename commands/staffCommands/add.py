@@ -103,6 +103,11 @@ class Add(commands.Cog):
                 await interaction.followup.send(f'User is not in `{guild.name}` - Exiting command')
                 return
         # ^ Error check for guilds - then exit if they're not in a guild.
+        logEmbed = discord.Embed(title = "Senior Staff Logs", description = "**New command usage**", color = 0xFF0FFF)
+        logEmbed.add_field(name = "Command:", value = f'`/{interaction.command.name}`', inline = False)
+        logEmbed.add_field(name = "New Staff:", value = user.mention, inline = False)
+        logEmbed.add_field(name = "Command User:", value = interaction.user.mention, inline = False) 
+        # define embed before giving roles
         try: # embed this
             for guild in guildArray:
                 member = await guild.fetch_member(user.id)
@@ -118,14 +123,23 @@ class Add(commands.Cog):
                     elif guild == directorGuild:
                         await member.add_roles(directorStaffRole)
                 if role.value == "Administrator":
-                    print("placeholder right now.")
+                    if guild == staffGuild:
+                        await member.add_roles(staffAdministrator, staffRoleStaffCord)
+                    elif guild == mainGuild:
+                        await member.add_roles(mainAdministrator, mainStaffRole)
+                    elif guild == clanGuild:
+                        await member.add_roles(clanStaffRole)
+                    elif guild == toolGuild:
+                        await member.add_roles(toolAdministrator, toolGuildStaffRole)
+                    elif guild == directorGuild:
+                        await member.add_roles(directorStaffRole)
+            if role.value == "Moderator":
+                logEmbed.add_field(name = "**Added Roles:**", value = f'`+`**Moderator/Staff Role** - **Staff Cord** \n `+`**Moderator/Staff Role** - **Main Guild** \n `+`**Staff Role** - **Clan Guild** \n `+`**Staff Role** - **Director Guild**', inline = False)
+            if role.value == "Administrator":
+                logEmbed.add_field(name = "**Added Roles:**", value = f'`+`**Admin/Staff Role** - **Staff Guild** \n `+`**Administrator/Staff Role** - **Main Guild** \n `+`**Staff Role** - **Clan Guild** \n `+`**Staff Role** - **Directors Guild**', inline = False)
         except Exception as e:
             await errorChannel.send(f'```\n Give Roles Error\n\n{e}```')
             return
-        logEmbed = discord.Embed(title = "Senior Staff Logs", description = "new command usage", color = 0xFF0FFF)
-        logEmbed.add_field(name = "command:", value = f'`/{interaction.command.name}`', inline = False)
-        logEmbed.add_field(name = "new staff:", value = user.mention, inline = False)
-        logEmbed.add_field(name = "user:", value = interaction.user.mention, inline = False)
         await interaction.followup.send(f'{user.mention} added to the Staff Team!', ephemeral = True)
         dmUser = await interaction.guild.fetch_member(config["dmUsers"][0])
         await dmUser.send(embed = logEmbed)
@@ -135,4 +149,4 @@ class Add(commands.Cog):
             print(e)
 
 async def setup(client: commands.Bot):
-    await client.add_cog(Add(client))
+    await client.add_cog(Add(client), guild = client.get_guild(int(config["seniorGuild"]["id"])))
