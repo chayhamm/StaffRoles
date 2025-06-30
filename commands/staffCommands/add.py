@@ -32,10 +32,11 @@ toolGuildMod = toolGuildRoles["mod"]
 toolGuildAdmin = toolGuildRoles["admin"]
 toolGuildStaff = toolGuildRoles["staff"]
 
+group = app_commands.Group(name = "staff", description = "The staff commands for Endure Core")
+
 class Add(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-    group = app_commands.Group(name = "staff", description = "The staff commands for Endure Core")
     @group.command(name = "add", description = "Add a new staff member")
     @app_commands.choices(role=[
         app_commands.Choice(name = "Moderator", value = "Moderator"),
@@ -149,4 +150,4 @@ class Add(commands.Cog):
             print(e)
 
 async def setup(client: commands.Bot):
-    await client.add_cog(Add(client), guild = client.get_guild(int(config["seniorGuild"]["id"])))
+    await client.add_cog(Add(client), guild = discord.Object(id = int(config["seniorGuild"]["id"])))

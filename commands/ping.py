@@ -14,4 +14,4 @@ class Ping(commands.Cog):
         await interaction.response.send_message("pong!", ephemeral = True)
 
 async def setup(client: commands.Bot):
-    await client.add_cog(Ping(client), guild = client.get_guild(int(config["seniorGuild"]["id"])))
+    await client.add_cog(Ping(client), guild = discord.Object(id = int(config["seniorGuild"]["id"])))

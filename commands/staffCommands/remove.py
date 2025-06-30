@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from .add import group
 import json
 
 with open("config.json") as config:
@@ -9,7 +10,6 @@ with open("config.json") as config:
 class Remove(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-    group = app_commands.Group(name = "staff", description = "Staff commands")
     @group.command(name = "remove", description = "Remove a staff member")
     async def remove(self, interaction: discord.Interaction, user: discord.User):
         await interaction.response.defer(ephemeral = True)
