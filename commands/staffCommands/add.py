@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import json
+from .group import staffGroup
 
 with open("config.json") as config:
     config = json.load(config)
@@ -32,12 +33,10 @@ toolGuildMod = toolGuildRoles["mod"]
 toolGuildAdmin = toolGuildRoles["admin"]
 toolGuildStaff = toolGuildRoles["staff"]
 
-group = app_commands.Group(name = "staff", description = "The staff commands for Endure Core")
-
 class Add(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-    @group.command(name = "add", description = "Add a new staff member")
+    @staffGroup.command(name = "add", description = "Add a new staff member")
     @app_commands.choices(role=[
         app_commands.Choice(name = "Moderator", value = "Moderator"),
         app_commands.Choice(name = "Administrator", value = "Administrator")
@@ -150,4 +149,4 @@ class Add(commands.Cog):
             print(e)
 
 async def setup(client: commands.Bot):
-    await client.add_cog(Add(client), guild = discord.Object(id = int(config["seniorGuild"]["id"])))
+    await client.add_cog(Add(client))
