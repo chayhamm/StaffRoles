@@ -100,24 +100,25 @@ class Add(commands.Cog):
                 member = await guild.fetch_member(user.id)
             except discord.NotFound as e:
                 await errorChannel.send(f'```\n Guild Error \n\n{e}```')
+                await interaction.followup.send(f'User is not in `{guild.name}` - Exiting command')
                 return
         # ^ Error check for guilds - then exit if they're not in a guild.
         try: # embed this
-            rolesToAdd = []
-            if role.value == "Moderator":
-                if guild == staffGuild:
-                    rolesToAdd.extend([staffModerator, staffRoleStaffCord])
-                if guild == mainGuild:
-                    rolesToAdd.extend([mainModerator, mainStaffRole])
-                if guild == clanGuild:
-                    rolesToAdd.extend([clanStaffRole])
-                if guild == toolGuild:
-                    rolesToAdd.extend([toolModerator, toolGuildStaffRole])
-                if guild == directorGuild:
-                    rolesToAdd.extend([directorStaffRole])
-                await member.add_roles(*rolesToAdd)
-            if role.value == "Administrator":
-                print("placeholder right now.")
+            for guild in guildArray:
+                member = await guild.fetch_member(user.id)
+                if role.value == "Moderator":
+                    if guild == staffGuild:
+                        await member.add_roles(staffModerator, staffRoleStaffCord)
+                    elif guild == mainGuild:
+                        await member.add_roles(mainModerator, mainStaffRole)
+                    elif guild == clanGuild:
+                        await member.add_roles(clanStaffRole)
+                    elif guild == toolGuild:
+                        await member.add_roles(toolModerator, toolGuildStaffRole)
+                    elif guild == directorGuild:
+                        await member.add_roles(directorStaffRole)
+                if role.value == "Administrator":
+                    print("placeholder right now.")
         except Exception as e:
             await errorChannel.send(f'```\n Give Roles Error\n\n{e}```')
             return
