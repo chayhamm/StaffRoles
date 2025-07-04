@@ -29,7 +29,7 @@ async def main():
                 await client.load_extension(path)
                 print(f'Loaded: {path}')
         for sFile in os.listdir("commands/staffCommands"):
-            if sFile.endswith(".py") and sFile != "group.py":
+            if sFile.endswith(".py") and sFile != "remove.py":
                 extension = sFile[:-3]
                 pathOne = f'commands.staffCommands.{extension}'
                 await client.load_extension(pathOne)

@@ -1,8 +1,8 @@
 import discord
-from discord import app_commands
+from discord.app_commands import Group, command, Choice
+from discord.ext.commands import GroupCog
 from discord.ext import commands
 import json
-from .group import staffGroup
 
 with open("config.json") as config:
     config = json.load(config)
@@ -33,15 +33,15 @@ toolGuildMod = toolGuildRoles["mod"]
 toolGuildAdmin = toolGuildRoles["admin"]
 toolGuildStaff = toolGuildRoles["staff"]
 
-class Add(commands.Cog):
+class Add(GroupCog, group_name = "staff", group_description = "Staff commands for endure core"):
     def __init__(self, client: commands.Bot):
         self.client = client
-    @staffGroup.command(name = "add", description = "Add a new staff member")
-    @app_commands.choices(role=[
-        app_commands.Choice(name = "Moderator", value = "Moderator"),
-        app_commands.Choice(name = "Administrator", value = "Administrator")
+    @command(name = "add", description = "Command to add a new staff member")
+    @discord.app_commands.choices(role=[
+        Choice(name = "Moderator", value = "Moderator"),
+        Choice(name = "Administrator", value = "Administrator")
     ])
-    async def add(self, interaction: discord.Interaction, user: discord.User, role: app_commands.Choice[str]):
+    async def add(self, interaction: discord.Interaction, user: discord.User, role: Choice[str]):
         await interaction.response.defer(ephemeral = True)
         guild = self.client.get_guild(int(config["seniorGuild"]["id"]))
         logsChannel = await guild.fetch_channel(config["seniorGuild"]["logs"])
@@ -149,4 +149,4 @@ class Add(commands.Cog):
             print(e)
 
 async def setup(client: commands.Bot):
-    await client.add_cog(Add(client), guild=discord.Object(id=int(config["seniorGuild"]["id"])))
+    await client.add_cog(Add(client))
