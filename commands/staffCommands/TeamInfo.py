@@ -22,6 +22,12 @@ class Team(GroupCog, group_name = "team", group_description = "Team info command
                 embed.add_field(name = "**Team:**", value = f'```{output}```', inline = False)
                 embed.add_field(name = "**User:**", value = interaction.user.mention, inline = False)
                 embed.set_footer(text = datetime.now().strftime("%d/%m/%Y, %H:%M:%S"))
+                await interaction.followup.send(embed = embed)
+                await guild.owner.send(embed = embed)
+        except Exception as e:
+            print(e)
+            await interaction.followup.send("Failed to connect to RCON. Please DM an Owner!")
+            await guild.owner.send(f'{interaction.user.mention} | {interaction.user.id} | Tried to use the `/team info` command but failed to connect to RCON!')
 
 async def setup(client: commands.Bot):
     await client.add_cog(Team(), guild = discord.Object(id = int(config["staffGuild"]["id"])))

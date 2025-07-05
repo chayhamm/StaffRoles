@@ -16,7 +16,9 @@ async def on_ready():
     try:
         #client.tree.clear_commands(guild = discord.Object(id = int(config["seniorGuild"]["id"])))
         synced = await client.tree.sync(guild = discord.Object(id=int(config["seniorGuild"]["id"])))
-        print(f'Synced {len(synced)} command(s)')
+        syncedTwo = await client.tree.sync(guild = discord.Object(id = int(config["staffGuild"]["id"])))
+        print(f'Synced {len(synced)} command(s) | SENIORS')
+        print(f'Synced {len(syncedTwo)} command(s) | STAFF')
     except Exception as e:
         print(e)
 
