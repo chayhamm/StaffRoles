@@ -4,7 +4,8 @@ from discord.ext.commands import GroupCog
 from discord.ext import commands
 import json
 from datetime import datetime
-from aiorcon import RCON
+import asyncio
+from rcon.source import Client
 
 with open("config.json") as config:
     config = json.load(config)
@@ -14,16 +15,21 @@ class Team(GroupCog, group_name = "team", group_description = "Team info command
     async def info(self, interaction: discord.Interaction, clannameorsteam: str):
         await interaction.response.defer(ephemeral = True)
         guild = interaction.guild
-        command_text = f'clans show {clannameorsteam}'
+        host = config["rcon"]["rconIP"]
+        port = int(config["rcon"]["rconPort"])
+        password = config["rcon"]["rconPassword"]
+        commandText = f'clans show {clannameorsteam}'
         try:
-            async with RCON(config["rcon"]["rconIP"], port = int(config["rcon"]["rconPort"]), password = config["rcon"]["rconPassword"]) as rcon:
-                output = await rcon.command(command_text)
-                embed = discord.Embed(title = "Endure 2x | EU | Team information", description = f'Information for: `{clannameorsteam}`', color = 0xFFA500)
-                embed.add_field(name = "**Team:**", value = f'```{output}```', inline = False)
-                embed.add_field(name = "**User:**", value = interaction.user.mention, inline = False)
-                embed.set_footer(text = datetime.now().strftime("%d/%m/%Y, %H:%M:%S"))
-                await interaction.followup.send(embed = embed)
-                await guild.owner.send(embed = embed)
+            def sendRcon():
+                with Client(host, port, passwd=password) as client:
+                    return client.run(commandText)
+            output = await asyncio.to_thread(sendRcon)
+            embed = discord.Embed(title = "Endure 2x | EU | Team information", description = f'Information for: `{clannameorsteam}`', color = 0xFFA500)
+            embed.add_field(name = "**Team:**", value = f'```{output}```', inline = False)
+            embed.add_field(name = "**User:**", value = interaction.user.mention, inline = False)
+            embed.set_footer(text = datetime.now().strftime("%d/%m/%Y, %H:%M:%S"))
+            await interaction.followup.send(embed = embed)
+            await guild.owner.send(embed = embed)
         except Exception as e:
             print(e)
             await interaction.followup.send("Failed to connect to RCON. Please DM an Owner!")
